@@ -15,14 +15,27 @@ class Reader
 
   def getAnswers
     answer = ""
+    syms = Hash.new
     args.each do |arg|
-      if (arg.start_with?("(swap)"))
-        print "Please choose an " + arg.sub("(swap)","") + ": "
-        answer += gets.chomp
+      if arg.start_with?("(swap)")
+        argval = arg.sub("(swap)","")
+        if (syms.has_key?(argval)) # we have this key-value already
+          keystring = argval
+        elsif (argval.include? ":")
+          keystring = argval.split(":").fetch(0)
+          print "Please choose " + argval.sub(/[A-z]+:/,"") + ": "
+          syms[keystring] = gets.chomp
+        else
+          keystring = argval
+          print "Please choose " + argval + ": "
+          syms[keystring] = gets.chomp
+        end
+        answer += syms[keystring]
       else
         answer += arg
       end
     end
+    puts syms
     answer
   end
 

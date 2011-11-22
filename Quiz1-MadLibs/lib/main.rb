@@ -1,17 +1,19 @@
 require './reader.rb'
 
-story = "I had a ((an adjective)) sandwich for lunch today. " +
+firstStory = "I had a ((an adjective)) sandwich for lunch today. " +
   "It dripped all over my ((a body part)) and ((a noun))."
 
-reader = Reader.new(story)
+secondStory = "Our favorite language is ((a gemstone))."
 
-puts "The story:"+reader.story
+thirdStory = "Our favorite language is ((gem:a gemstone)). " +
+  "We think ((gem)) is better than ((a gemstone))."
 
-puts "Story component count: "+reader.args.length.to_s
+#reader1 = Reader.new(firstStory)
+#puts reader1.getAnswers
+#
+#reader2 = Reader.new(secondStory)
+#puts reader2.getAnswers
 
-puts "Story components:"
-reader.args.each { |i| puts i }
+reader3 = Reader.new(thirdStory)
 
-puts "Now getting input: "
-
-puts reader.getAnswers
+puts reader3.getAnswers
