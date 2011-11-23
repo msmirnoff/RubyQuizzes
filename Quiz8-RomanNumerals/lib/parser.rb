@@ -10,32 +10,32 @@ class Parser
 
   def convert
     @result = if (value.match(/^[1-9]+[0-9]*$/))
-      i2r
+      arabic_to_roman
     elsif (value.match(/^[IVXLCDM]+$/))
-      r2i
+      roman_to_arabic
     else
-      "Unrecognised Input."
+      "Input not recognised as valid arabic or roman number."
     end
   end
 
-  def i2r
+  def arabic_to_roman
     intval = value.to_i
 
-    if (intval < 4000 && intval > 0) # valid range
+    if (1..3999).include?(intval) # valid range
       units = intval % 10
       tens = (intval / 10) % 10
       hundreds = (intval / 100) % 10
       thousands = (intval / 1000)
       ("M" * thousands) +
-        unitsToRoman(hundreds, "C", "D", "M") +
-        unitsToRoman(tens, "X", "L", "C") +
-        unitsToRoman(units, "I", "V", "X")
+        arabic_digits_to_roman(hundreds, "C", "D", "M") +
+        arabic_digits_to_roman(tens, "X", "L", "C") +
+        arabic_digits_to_roman(units, "I", "V", "X")
     else
-      "Invalid input range"
+      "Invalid input range - can only represent whole numbers between 1 and 3999."
     end
   end
 
-  def unitsToRoman(arabic, unit, five, ten)
+  def arabic_digits_to_roman(arabic, unit, five, ten)
     if (arabic == 9)
       "#{unit}#{ten}"
     elsif (arabic >= 5)
@@ -47,30 +47,22 @@ class Parser
     end
   end
 
-  def r2i
+  def roman_to_arabic
     roman = @value
 
-#    # slice into substrings, for each decimal power
-#    thousands = 0
-#    # get thousands
-#    while (roman.chr == "M")
-#      thousands += 1
-#      roman=roman[1..-1]
-#    end
-
-    thousands = cutRoman(roman,"M","M","M")
-    hundreds = cutRoman(roman[thousands.length..-1],"C", "D", "M")
-    tens = cutRoman(roman[(thousands.length+hundreds.length)..-1],"X", "L", "C")
-    units = cutRoman(roman[(thousands.length+hundreds.length+tens.length)..-1],"I", "V", "X")
+    thousands = extract_roman_subgroup(roman,"M","M","M")
+    hundreds = extract_roman_subgroup(roman[thousands.length..-1],"C", "D", "M")
+    tens = extract_roman_subgroup(roman[(thousands.length+hundreds.length)..-1],"X", "L", "C")
+    units = extract_roman_subgroup(roman[(thousands.length+hundreds.length+tens.length)..-1],"I", "V", "X")
 
     # get hundreds/tens/units
     1000 * thousands.length +
-    100 * romanToArabic(hundreds, "C", "D", "M") +
-    10 * romanToArabic(tens, "X", "L", "C") +
-    romanToArabic(units, "I", "V", "X")
+    100 * roman_digits_to_arabic(hundreds, "C", "D", "M") +
+    10 * roman_digits_to_arabic(tens, "X", "L", "C") +
+    roman_digits_to_arabic(units, "I", "V", "X")
   end
 
-  def cutRoman(subroman, unit, five, ten)
+  def extract_roman_subgroup(subroman, unit, five, ten)
     match = ""
     subroman.each_char do |c|
       if [unit,five,ten].map(&:to_s).include?(c)
@@ -83,7 +75,7 @@ class Parser
     match
   end
 
-  def romanToArabic(subroman, unit, five, ten)
+  def roman_digits_to_arabic(subroman, unit, five, ten)
     if (subroman == "#{unit}#{ten}")
       9
     elsif (subroman == "#{unit}#{five}")
